@@ -1,6 +1,6 @@
 #include <cstdio>
 #include <vector>
-#include <map>
+#include <unordered_map>
 #include <algorithm>
 
 using namespace std;
@@ -54,24 +54,23 @@ int main() {
         scanf("%d", &n);
 
         vector<int> i_vals(n), j_vals(n), e_vals(n);
-        map<int, int> compress;
+        unordered_map<int, int> compress;
+        compress.reserve(2 * n);
 
         // Read all constraints and collect all variables
         for (int k = 0; k < n; k++) {
             scanf("%d %d %d", &i_vals[k], &j_vals[k], &e_vals[k]);
-            compress[i_vals[k]] = 0;
-            compress[j_vals[k]] = 0;
-        }
-
-        // Coordinate compression
-        int idx = 0;
-        for (auto& p : compress) {
-            p.second = idx++;
+            if (compress.find(i_vals[k]) == compress.end()) {
+                compress[i_vals[k]] = compress.size();
+            }
+            if (compress.find(j_vals[k]) == compress.end()) {
+                compress[j_vals[k]] = compress.size();
+            }
         }
 
         // Process constraints in two passes
         // First pass: process all equality constraints
-        UnionFind uf(idx);
+        UnionFind uf(compress.size());
         for (int k = 0; k < n; k++) {
             if (e_vals[k] == 1) {
                 int ci = compress[i_vals[k]];
